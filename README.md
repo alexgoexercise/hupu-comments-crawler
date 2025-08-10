@@ -31,7 +31,7 @@ pip install scrapy
 
 ### Step 1: Collect NBA Root Node IDs
 
-The `nodeid_spider.py` crawls Hupu's API to discover NBA match root node IDs, which are required for collecting detailed statistics and comments.
+The `nodeid_spider.py` crawls Hupu's API to discover NBA match root node IDs (each nodeID represents one team in one specific NBA game), which are required for collecting detailed statistics and comments for each specific game.
 
 #### Basic Usage:
 ```bash
@@ -48,9 +48,12 @@ scrapy crawl nodeid -a min_id=1000 -a max_id=2000 -o nba_root_ids.json
 scrapy crawl nodeid -a min_id=0 -a max_id=5000 -o nba_root_ids.json
 ```
 
+(by default, min_id = 0 and max_id = 6000; This is from trials and errors)
+
 #### What it does:
 - Sends requests to Hupu's API endpoint: `getSubGroups`
-- Discovers NBA team matches within the specified ID range
+- the 'ID' here is the **outBizNo** in the code 
+- Discovers NBA team matches within the specified ID range (note that this ID range are not the 'nodeID' range, but the outBizNo's. You can think of it as an **outBizNo** <-> **nodeID** key and value pair, in which the nodeID value represent the respective matches)
 - Filters results to only include basketball matches
 - Outputs a JSON file with structure:
   ```json
@@ -81,13 +84,14 @@ scrapy crawl match -o nba_match_stats.csv
 1. Loads the `nba_root_ids.json` file
 2. For each root node ID:
    - Fetches player statistics from the `groupAndSubNodes` API
+   - Scrape the **BizID** of each player in the team, and use it to fetch the json response for the hottest comments
    - Collects up to 3 hottest fan comments for each player
    - Cleans comment text to prevent CSV parsing issues
 3. Outputs a CSV file with comprehensive match data
 
 #### Output File: `nba_match_stats.csv`
 The CSV contains the following columns:
-- `outBizNo`: Business ID for the match
+- `outBizNo`: Business ID for the match (think of it as key to the value of each nodeID for respective NBA match)
 - `team`: Team name in Chinese
 - `rootNodeId`: Root node ID for the match
 - `playerName`: Player name
@@ -158,37 +162,6 @@ The `clean_comment_for_csv` method in `match_spider.py` handles:
 scrapy crawl match -L DEBUG -o nba_match_stats.csv
 ```
 
-## Data Analysis
-
-After collecting the data, you can analyze it using pandas:
-
-```python
-import pandas as pd
-
-# Read the CSV
-df = pd.read_csv('nba_match_stats.csv', encoding='utf-8-sig')
-
-# Basic statistics
-print(f"Total records: {len(df)}")
-print(f"Unique teams: {df['team'].nunique()}")
-print(f"Records with comments: {df['comment1'].notna().sum()}")
-
-# Filter records with comments
-comments_df = df[df['comment1'].notna()]
-print(f"Records with at least one comment: {len(comments_df)}")
-```
-
-## Ethical Considerations
-
-- Respect the website's robots.txt
-- Use reasonable delays between requests
-- Don't overload the server
-- Consider the terms of service of the websites being crawled
-
-## License
-
-This project is for educational and research purposes. Please respect the terms of service of the websites being crawled.
-
 ## Support
 
 For issues or questions:
@@ -202,7 +175,7 @@ Complete data collection process:
 ```bash
 # 1. Collect root node IDs
 cd hupu_crawler
-scrapy crawl nodeid -a min_id=0 -a max_id=1000 -o nba_root_ids.json
+scrapy crawl nodeid -o nba_root_ids.json
 
 # 2. Collect match statistics and comments
 scrapy crawl match -o nba_match_stats.csv
