@@ -7,11 +7,11 @@ class NodeIDSpider(scrapy.Spider):
     name = "nodeid"
     allowed_domains = ["games.mobileapi.hupu.com"]
     count = 0
-    custom_settings = {
-        "ROBOTSTXT_OBEY": False,
-        "DOWNLOAD_DELAY": 0,
-        "AUTOTHROTTLE_ENABLED": False,
-    }
+    # custom_settings = {
+    #     "ROBOTSTXT_OBEY": False,
+    #     "DOWNLOAD_DELAY": 0,
+    #     "AUTOTHROTTLE_ENABLED": False,
+    # }
 
     def __init__(self, min_id=0, max_id=6000, *args, **kwargs):
         super().__init__(*args, **kwargs)

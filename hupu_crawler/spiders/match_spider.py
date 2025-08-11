@@ -7,11 +7,11 @@ import scrapy
 class MatchSpider(scrapy.Spider):
     name = "match"
     allowed_domains = ["games.mobileapi.hupu.com"]
-    custom_settings = {
-        "ROBOTSTXT_OBEY": False,
-        "DOWNLOAD_DELAY": 0,
-        "AUTOTHROTTLE_ENABLED": False,
-    }
+    # custom_settings = {
+    #     "ROBOTSTXT_OBEY": False,
+    #     "DOWNLOAD_DELAY": 0,
+    #     "AUTOTHROTTLE_ENABLED": False,
+    # }
 
     # Templates for the two JSON endpoints
     STATS_URL = (
